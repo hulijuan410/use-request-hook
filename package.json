@@ -1,8 +1,9 @@
 {
-  "name": "use-request-hook",
-  "version": "1.0.0",
+  "name": "use-axios-hook",
+  "version": "0.0.2",
   "description": "Encapsulate server requests using react custom hooks",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "mocha --reporter spec"

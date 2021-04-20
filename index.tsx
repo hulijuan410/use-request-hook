@@ -61,10 +61,16 @@ type UseRequestType<U = any> = <T = any>(
 export const withUseRequest: <U>(
   defaultConfig?: {},
   handleErrorRes?: (res?: AxiosResponse, defaultConfig?: {}) => any,
-  handleError?: (err?: any) => any
-) => UseRequestType<U> = (defaultConfig = {}, handleErrorRes, handleError) => {
+  handleError?: (err?: any) => any,
+  formatData?: (res?: AxiosResponse) => void
+) => UseRequestType<U> = (
+  defaultConfig = {},
+  handleErrorRes,
+  handleError,
+  formatData
+) => {
   //useRequest Hook
-  const useRequest: ReturnType<typeof withUseRequest> = (props) => {
+  const useBaseRequest: ReturnType<typeof withUseRequest> = (props) => {
     let {
       //设置默认值
       url,
@@ -110,10 +116,10 @@ export const withUseRequest: <U>(
 
     const loadData = async (config = {}) => {
       dispatch({ type: 'FETCH_INIT' });
-
       let promise = axios
         .request({
           //data和url顺序不能颠倒（url是在getConfigDatas中拼接的）
+          ...props,
           data: getConfigDatas({ ...configDatas, ...config }),
           url: url,
           method: method
@@ -123,10 +129,14 @@ export const withUseRequest: <U>(
           if (!getIsMounted()) {
             return res;
           }
-          if (res.data.code === 0) {
+          if (res.status === 200 || res.data.code === 0) {
             dispatch({
               type: 'FETCH_SUCCESS',
-              payload: handleData ? handleData(res) : res.data.data
+              payload: handleData
+                ? handleData(res)
+                : formatData
+                ? formatData(res)
+                : res.data
             });
           } else {
             dispatch({ type: 'FETCH_ERROR' });
@@ -152,7 +162,7 @@ export const withUseRequest: <U>(
     //JSON.stringify(variables)这里不能直接用variables，应为对象每次都会认为是不一样的
     return [state, loadData];
   };
-  return useRequest;
+  return useBaseRequest;
 };
 
 export default withUseRequest();
