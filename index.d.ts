@@ -13,6 +13,6 @@ export declare type RequestParams<T = any, UrlType = any> = AxiosRequestConfig &
     handleData?: (res: AxiosResponse) => T;
 };
 declare type UseRequestType<U = any> = <T = any>(params: RequestParams<T, U>) => [State<T>, (config?: {}) => Promise<any>];
-export declare const withUseRequest: <U>(defaultConfig?: {}, handleErrorRes?: (res?: AxiosResponse, defaultConfig?: {}) => any, handleError?: (err?: any) => any) => UseRequestType<U>;
+export declare const withUseRequest: <U>(defaultConfig?: {}, handleErrorRes?: (res?: AxiosResponse, defaultConfig?: {}) => any, handleError?: (err?: any) => any, formatData?: (res?: AxiosResponse) => void) => UseRequestType<U>;
 declare const _default: UseRequestType<unknown>;
 export default _default;

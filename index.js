@@ -67,10 +67,10 @@ var fetchDataReducer = function (state, action) {
             throw new Error();
     }
 };
-var withUseRequest = function (defaultConfig, handleErrorRes, handleError) {
+var withUseRequest = function (defaultConfig, handleErrorRes, handleError, formatData) {
     if (defaultConfig === void 0) { defaultConfig = {}; }
     //useRequest Hook
-    var useRequest = function (props) {
+    var useBaseRequest = function (props) {
         var 
         //设置默认值
         url = props.url, _a = props.method, method = _a === void 0 ? 'GET' : _a, _b = props.configDatas, configDatas = _b === void 0 ? {} : _b, //默认传递数据都是json格式
@@ -110,21 +110,20 @@ var withUseRequest = function (defaultConfig, handleErrorRes, handleError) {
                 return __generator(this, function (_a) {
                     dispatch({ type: 'FETCH_INIT' });
                     promise = axios_1.default
-                        .request({
-                        //data和url顺序不能颠倒（url是在getConfigDatas中拼接的）
-                        data: getConfigDatas(__assign(__assign({}, configDatas), config)),
-                        url: url,
-                        method: method
-                    })
+                        .request(__assign(__assign({}, props), { data: getConfigDatas(__assign(__assign({}, configDatas), config)), url: url, method: method }))
                         .then(function (res) {
                         //使用getIsMounted()判断如果请求返回的时候原来的页面已经卸载，则不更新状态，否则会报warning：Warning: Can't perform a React state update on an unmounted component. This is a no-op, but it indicates a memory leak in your application. To fix, cancel all subscriptions and asynchronous tasks in a useEffect cleanup function
                         if (!getIsMounted()) {
                             return res;
                         }
-                        if (res.data.code === 0) {
+                        if (res.status === 200 || res.data.code === 0) {
                             dispatch({
                                 type: 'FETCH_SUCCESS',
-                                payload: handleData ? handleData(res) : res.data.data
+                                payload: handleData
+                                    ? handleData(res)
+                                    : formatData
+                                        ? formatData(res)
+                                        : res.data
                             });
                         }
                         else {
@@ -152,7 +151,7 @@ var withUseRequest = function (defaultConfig, handleErrorRes, handleError) {
         //JSON.stringify(variables)这里不能直接用variables，应为对象每次都会认为是不一样的
         return [state, loadData];
     };
-    return useRequest;
+    return useBaseRequest;
 };
 exports.withUseRequest = withUseRequest;
 exports.default = exports.withUseRequest();
