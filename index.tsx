@@ -84,7 +84,7 @@ export const withUseRequest: <U>(
       (state: State, action: Action) => State
     >(fetchDataReducer, {
       data: null,
-      loading: true,
+      loading: false,
       error: false
     });
     const getIsMounted = useMountedState();
