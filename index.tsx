@@ -23,6 +23,7 @@ export type RequestParams<T = any, UrlType = any> = AxiosRequestConfig & {
   };
   trigger?: boolean;
   handleData?: (res: AxiosResponse) => T;
+  postWithGetMethod?: boolean; //使用Post请求，但是需要把请求参数链接到url上，并且请求参数需要其他方式触发得到
 };
 
 const fetchDataReducer: (state: State, action: Action) => State = (
@@ -78,7 +79,8 @@ export const withUseRequest: <U>(
       configDatas = {}, //默认传递数据都是json格式
       trigger = true,
       headers = {},
-      handleData
+      handleData,
+      postWithGetMethod = false
     } = props;
     const [state, dispatch] = useReducer<
       (state: State, action: Action) => State
@@ -101,6 +103,14 @@ export const withUseRequest: <U>(
           return;
         } else {
           //其他请求
+          if (postWithGetMethod) {
+            //使用post请求，但是后端要求把请求参数连到url上，并且请求参数在页面加载时拿不到，所以需要拿到后重新拼接url
+            url +=
+              url!.indexOf('?') === -1
+                ? `?${qs.stringify(configDatas)}`
+                : `&${qs.stringify(configDatas)}`;
+            return;
+          }
           if (
             configDatas!['formData'] ||
             headers['content-type'] === 'multipart/form-data'
@@ -129,7 +139,7 @@ export const withUseRequest: <U>(
           if (!getIsMounted()) {
             return res;
           }
-          if (res.status === 200 || res.data.code === 0) {
+          if (res.data.code === 0) {
             dispatch({
               type: 'FETCH_SUCCESS',
               payload: handleData

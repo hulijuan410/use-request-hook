@@ -6,15 +6,55 @@ Custom React Hook for data fetching
 
 npm install use-axios-hook
 
-# Usage
+# 基础调用
 
-### use-axios-hook 暴露出的变量和函数
+## 调用方式
 
-1. 请求参数变量：在 axios 现有参数基础上增加了以下三个参数
+```
+//1、引入
+import useRequest from "use-axios-hook";
+//2、发起请求
+const [state] = useRequest({
+  url: "https://randomuser.me/api/",
+  configDatas: {
+    results: 50
+  },
+  method: "GET",
+  trigger: true,//组件加载就发送请求
+  handleData: (res) => res.data.results //精确获取需要返回的数据
+});
+//3、监听请求状态
+  //loading状态
+  useEffect(() => {
+    if (state.loading) {
+      ****
+    }
+  }, [state.loading]);
+  //成功
+  useEffect(() => {
+    if (state.data) {
+      setData(state.data);
+    }
+  }, [state.data]);
+  //失败
+  useEffect(() => {
+    if (state.error) {
+      ****
+    }
+  }, [state.error]);
+```
 
-- configDatas：传递的数据，默认以 json 格式传递；
-- trigger：布尔值，是否触发请求，true:发送，false：不发送；
-- handleData：可以精确的获取数据
+## 参数设置
+
+#### 请求参数
+
+- url: 请求 url，axios 自带参数（必填）
+- configDatas：请求参数，以 json 格式传递，默认为 {}；（选填）
+- trigger：布尔值，是否立即触发请求，true:立即发送，false：不发送，默认为 true；（选填）
+- handleData：(res: AxiosResponse) => T;处理请求返回，精确获取想要的数据，默认不填；（选填）
+- postWithGetMethod：布尔值，默认为 false（在后端接口为 post 请求但是需要使用 get 方式连接请求参数，并且请求参数需要其他方式触发得到，需要在触发时重新拼接 url，设置为 true）；（选填）
+
+除此之前还有 axios 所有自带的请求参数，参数类型设置如下：
 
 ```
 export type RequestParams<T = any, UrlType = any> = AxiosRequestConfig & {
@@ -24,12 +64,21 @@ export type RequestParams<T = any, UrlType = any> = AxiosRequestConfig & {
   };
   trigger?: boolean;
   handleData?: (res: AxiosResponse) => T;
+  postWithGetMethod?: boolean;
 };
 ```
 
-把请求参数暴露出来，方便使用者定制自己的请求参数，可以在现有参数的基础上进行扩展；
+### 返回参数
+
+- state：状态对象，包含后端返回数据 data，加载状态 loading 和错误状态 error；
+- loadData：用于发送请求的函数，当请求参数 trigger 为 false 时，请求不立刻发送，在触发时机调用 loadData 即可发起请求；
+  - loadData 函数参数：需要发送给后端的请求数据，同样是 json 格式，默认为{}；（选填）
+  - loadData 函数返回：promise，把后端返回数据 response 返回，这样方便后续使用.then()进行扩展，更灵活；
+
+### use-axios-hook 暴露出的变量和函数
 
 2. 导出一个默认的 useRequest hook，可以直接调用，见调用方式 1
+
 - 请求参数：
 
 3. 导出 withUseRequest 高阶函数，用户可以通过配置参数生成自己的 useRequest hook，见调用方式 2
