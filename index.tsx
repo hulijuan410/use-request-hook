@@ -139,7 +139,7 @@ export const withUseRequest: <U>(
           if (!getIsMounted()) {
             return res;
           }
-          if (res.data.code === 0) {
+          if (res.data.code === 0 || res.status === 200) {
             dispatch({
               type: 'FETCH_SUCCESS',
               payload: handleData

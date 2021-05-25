@@ -49,12 +49,12 @@ const [state] = useRequest({
 #### 请求参数
 
 - url: 请求 url，axios 自带参数（必填）
-- configDatas：请求参数，以 json 格式传递，默认为 {}；（选填）
+- configDatas：需要传递给后端的数据，以 json 格式传递，默认为 {}；（选填）
 - trigger：布尔值，是否立即触发请求，true:立即发送，false：不发送，默认为 true；（选填）
 - handleData：(res: AxiosResponse) => T;处理请求返回，精确获取想要的数据，默认不填；（选填）
 - postWithGetMethod：布尔值，默认为 false（在后端接口为 post 请求但是需要使用 get 方式连接请求参数，并且请求参数需要其他方式触发得到，需要在触发时重新拼接 url，设置为 true）；（选填）
 
-除此之前还有 axios 所有自带的请求参数，参数类型设置如下：
+除此之前还包括 axios 所有自带的请求参数，参数类型设置如下：
 
 ```
 export type RequestParams<T = any, UrlType = any> = AxiosRequestConfig & {
@@ -70,40 +70,12 @@ export type RequestParams<T = any, UrlType = any> = AxiosRequestConfig & {
 
 ### 返回参数
 
-- state：状态对象，包含后端返回数据 data，加载状态 loading 和错误状态 error；
+- state：状态对象，包含后端返回数据 data，请求加载状态 loading 和错误状态 error；
 - loadData：用于发送请求的函数，当请求参数 trigger 为 false 时，请求不立刻发送，在触发时机调用 loadData 即可发起请求；
   - loadData 函数参数：需要发送给后端的请求数据，同样是 json 格式，默认为{}；（选填）
   - loadData 函数返回：promise，把后端返回数据 response 返回，这样方便后续使用.then()进行扩展，更灵活；
 
-### use-axios-hook 暴露出的变量和函数
-
-2. 导出一个默认的 useRequest hook，可以直接调用，见调用方式 1
-
-- 请求参数：
-
-3. 导出 withUseRequest 高阶函数，用户可以通过配置参数生成自己的 useRequest hook，见调用方式 2
-
-```
-export const withUseRequest: <U>(
-  defaultConfig?: {},
-  handleErrorRes?: (res?: AxiosResponse, defaultConfig?: {}) => any,
-  handleError?: (err?: any) => any,
-  formatData?: (res?: AxiosResponse) => void
-) => UseRequestType<U> = (
-  defaultConfig = {},
-  handleErrorRes,
-  handleError,
-  formatData
-) => {
-    const useRequest: ReturnType<typeof withUseRequest> = (props) =>{}
-    return useRequest;
-};
-export default withUseRequest();
-```
-
-### 两种调用方式
-
-1. 直接调用导出的默认 useRequest hook
+## Example
 
 - 直接在 react 中调用
 
@@ -203,23 +175,55 @@ export default AppTypescript;
 
 ```
 
-正常情况下，默认导出的 useRequest hook 就够用了，如果需要根据项目定制自己的 useRequest，可以使用如下方式
+以上是使用默认配置，如果需要根据项目定制自己的 useRequest，比如定制错误处理函数，格式化请求返回数据，增加额外请求参数等，可以使用 use-axios-hook 导出的高阶函数 withUseRequest。
 
-2. 使用导出的 withUseRequest 定制 useRequest
+# 使用 withUseRequest 定制调用
+
+## 导出代码
 
 ```
+export const withUseRequest: <U>(
+  defaultConfig?: {},
+  handleErrorRes?: (res?: AxiosResponse, defaultConfig?: {}) => any,
+  handleError?: (err?: any) => any,
+  formatData?: (res?: AxiosResponse) => void
+) => UseRequestType<U> = (
+  defaultConfig = {},
+  handleErrorRes,
+  handleError,
+  formatData
+) => {
+    const useRequest: ReturnType<typeof withUseRequest> = (props) =>{}
+    return useRequest;
+};
+```
+
+## withUseRequest 参数
+
+- defaultConfig：增加请求的默认配置参数：json 格式，默认为{}；（选填）
+- handleErrorRes：错误处理函数：比如处理 401,407 等情况，(res?: AxiosResponse, defaultConfig?: {}) => any；（选填）
+  - handleErrorRes 函数参数：服务端返回数据 res，和所有的请求参数；
+- handleError：错误处理函数：用于 catch 捕获到的错误处理；（选填）
+- formatData：统一格式化后端返回数据，比如后端返回数据都是 res.data.data 这种格式，可以统一格式化返回为 res.data；（选填）
+
+## Example
+
+- 使用导出的 withUseRequest 定制自己的 useRequest
+
+```
+//useBaseRequest.js
 import { withUseRequest } from "use-axios-hook";
 import { AxiosResponse } from "axios";
 
 //在这里可以配置你项目里的通用配置，比如
 interface ConfigType {
-  isPage?: boolean; //页面级别的接口开启（接口错误跳错误页面），模块级别的接口不开启（接口错误做相应处理）
+  isPage?: boolean; //比如项目分页面级别的接口和模块级别的接口，对于页面级别的接口错误直接跳转错误页面，模块级别的接口错误只需要做错误处理，这时需要一个统一变量标识接口类型；
 }
 //配置请求url的类型
 type UrlType = string;
 
 //配置项目通用配置
-const useRequest = () => {
+const useBaseRequest = () => {
   //handleRes可以统一配置错误返回的逻辑，举例如下
   const handleRes = (res?: AxiosResponse, config?: ConfigType) => {
     if (res!.data.code === 401) {
@@ -248,7 +252,7 @@ const useRequest = () => {
   const formatData = (res?: AxiosResponse) => {
     return res?.data.data;
   };
-  //默认配置
+  //除了自带的参数，需要额外增加的默认配置
   const config = {
     openDefaultFunc: true,
     isPage: false
@@ -257,6 +261,18 @@ const useRequest = () => {
   return withUseRequest<UrlType>(config, handleRes, handleErr, formatData);
 };
 
-export default useRequest;
+export default useBaseRequest;
 
+```
+
+- 使用定制好的 useRequest
+
+```
+import useBaseRequest from "./useBaseRequest";
+...
+...
+const useRequest = useBaseRequest();
+//接下来就和基础调用一样啦。。。
+...
+...
 ```
