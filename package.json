@@ -1,6 +1,6 @@
 {
   "name": "use-axios-hook",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Encapsulate server requests using react custom hooks",
   "main": "index.js",
   "types": "index.d.ts",
@@ -8,6 +8,12 @@
     "build": "tsc",
     "test": "mocha --reporter spec"
   },
+  "keywords": [
+    "react",
+    "react hook",
+    "axios",
+    "typescript"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hulijuan410/use-request-hook.git"
