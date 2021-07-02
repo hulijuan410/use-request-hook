@@ -10,7 +10,7 @@ npm install use-axios-hook
 
 ## 调用方式
 
-```
+```js
 //1、引入
 import useRequest from "use-axios-hook";
 //2、发起请求
@@ -56,15 +56,15 @@ const [state] = useRequest({
 
 除此之前还包括 axios 所有自带的请求参数，参数类型设置如下：
 
-```
+```js
 export type RequestParams<T = any, UrlType = any> = AxiosRequestConfig & {
-  url: UrlType;
+  url: UrlType,
   configDatas?: {
-    [key: string]: any;
-  };
-  trigger?: boolean;
-  handleData?: (res: AxiosResponse) => T;
-  postWithGetMethod?: boolean;
+    [key: string]: any
+  },
+  trigger?: boolean,
+  handleData?: (res: AxiosResponse) => T,
+  postWithGetMethod?: boolean
 };
 ```
 
@@ -79,21 +79,21 @@ export type RequestParams<T = any, UrlType = any> = AxiosRequestConfig & {
 
 - 直接在 react 中调用
 
-```
+```js
 //AppReact.jsx
-import React, { useState, useEffect } from "react";
-import useRequest from "use-axios-hook";
+import React, { useState, useEffect } from 'react';
+import useRequest from 'use-axios-hook';
 
 function AppReact() {
   const [data, setData] = useState([]);
   //发请求
   const [state] = useRequest({
-    url: "https://randomuser.me/api/",
+    url: 'https://randomuser.me/api/',
     configDatas: {
       results: 50
     },
-    method: "GET",
-    trigger: true,//组件加载就发送请求
+    method: 'GET',
+    trigger: true, //组件加载就发送请求
     handleData: (res) => res.data.results //精确获取需要返回的数据
   });
   //监听请求成功，改变状态
@@ -119,7 +119,7 @@ export default AppReact;
 
 - 使用 ts 语法
 
-```
+```js
 //AppTypescript.tsx
 import React, { useState, useEffect } from "react";
 import useRequest from "use-axios-hook";
@@ -181,7 +181,7 @@ export default AppTypescript;
 
 ## 导出代码
 
-```
+```js
 export const withUseRequest: <U>(
   defaultConfig?: {},
   handleErrorRes?: (res?: AxiosResponse, defaultConfig?: {}) => any,
@@ -193,8 +193,8 @@ export const withUseRequest: <U>(
   handleError,
   formatData
 ) => {
-    const useRequest: ReturnType<typeof withUseRequest> = (props) =>{}
-    return useRequest;
+  const useRequest: ReturnType<typeof withUseRequest> = (props) => {};
+  return useRequest;
 };
 ```
 
@@ -210,7 +210,7 @@ export const withUseRequest: <U>(
 
 - 使用导出的 withUseRequest 定制自己的 useRequest
 
-```
+```js
 //useBaseRequest.js
 import { withUseRequest } from "use-axios-hook";
 import { AxiosResponse } from "axios";
@@ -267,7 +267,7 @@ export default useBaseRequest;
 
 - 使用定制好的 useRequest
 
-```
+```js
 import useBaseRequest from "./useBaseRequest";
 ...
 ...

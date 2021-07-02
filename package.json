@@ -8,6 +8,9 @@
     "build": "tsc",
     "test": "mocha --reporter spec"
   },
+  "files": [
+    "lib/**/*"
+  ],
   "keywords": [
     "react",
     "react hook",
