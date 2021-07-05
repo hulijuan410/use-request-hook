@@ -1,14 +1,17 @@
 # use-axios-hook
 
-Custom React Hook for data fetching
+**use-axios-hook**是使用[Typescript](https://www.typescriptlang.org)和[React Hooks](https://zh-hans.reactjs.org/docs/hooks-reference.html)封装的用于服务端请求的自定义 hook。
 
-# Installation
+## 安装
 
-npm install use-axios-hook
+```bash
+// npm
+$> npm install use-axios-hook
+// yarn
+$> yarn add use-axios-hook
+```
 
-# 基础调用
-
-## 调用方式
+## 快速入门
 
 ```js
 //1、引入
@@ -23,7 +26,7 @@ const [state] = useRequest({
   trigger: true,//组件加载就发送请求
   handleData: (res) => res.data.results //精确获取需要返回的数据
 });
-//3、监听请求状态
+//3、监听请求状态(包括三个状态：loading、success、error)
   //loading状态
   useEffect(() => {
     if (state.loading) {

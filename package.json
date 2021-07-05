@@ -2,14 +2,13 @@
   "name": "use-axios-hook",
   "version": "0.0.7",
   "description": "Encapsulate server requests using react custom hooks",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
     "test": "mocha --reporter spec"
   },
   "files": [
-    "lib/**/*"
+    "lib/**"
   ],
   "keywords": [
     "react",
