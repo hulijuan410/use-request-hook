@@ -1,6 +1,6 @@
 {
   "name": "use-axios-hook",
-  "version": "0.0.8",
+  "version": "1.0.1",
   "description": "Encapsulate server requests using react custom hooks",
   "main": "lib/index.js",
   "scripts": {

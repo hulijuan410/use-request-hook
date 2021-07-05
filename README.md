@@ -14,37 +14,140 @@ $> yarn add use-axios-hook
 ## 快速入门
 
 ```js
-//1、引入
-import useRequest from "use-axios-hook";
-//2、发起请求
+//1、引入'use-axios-hook'包
+import useRequest from 'use-axios-hook';
+//2、调用：发起请求
 const [state] = useRequest({
-  url: "https://randomuser.me/api/",
+  url: 'https://randomuser.me/api/',
   configDatas: {
     results: 50
   },
-  method: "GET",
-  trigger: true,//组件加载就发送请求
+  method: 'GET',
+  trigger: true, //组件加载就发送请求
   handleData: (res) => res.data.results //精确获取需要返回的数据
 });
 //3、监听请求状态(包括三个状态：loading、success、error)
-  //loading状态
-  useEffect(() => {
-    if (state.loading) {
-      ****
-    }
-  }, [state.loading]);
-  //成功
+//请求成功
+useEffect(() => {
+  if (state.data) {
+    setData(state.data);
+  }
+}, [state.data]);
+```
+
+## 一些常用实例
+
+### 组件加载就发送请求 [<font color=#467aff>在 codesandbox 试试吧</font>](https://codesandbox.io/s/trusting-river-qt84d?file=/src/App.tsx)
+
+```js
+import './styles.css';
+import React, { useEffect, useState } from 'react';
+//引入
+import useRequest from 'use-axios-hook';
+
+export default function App() {
+  const [data, setData] = useState([]);
+  //调用：发送请求
+  const [state] = useRequest({
+    url: 'https://randomuser.me/api/',
+    configDatas: {
+      results: 50
+    },
+    method: 'GET',
+    trigger: true, //组件加载就发送请求
+    handleData: (res) => res.data.results //精确获取需要返回的数据
+  });
+  //监听请求状态：数据请求成功
   useEffect(() => {
     if (state.data) {
       setData(state.data);
     }
   }, [state.data]);
-  //失败
+  return (
+    <div className="App">
+      <!-- 请求中（loading） -->
+      {state.loading ? (
+        <div>数据正在加载中........</div>
+      ) : (
+        data.length !== 0 &&
+        data.map((item) => {
+          return (
+            <div key={item.phone} className="item">
+              email:{item.email}
+            </div>
+          );
+        })
+      )}
+      <!-- 请求失败（error） -->
+      {state.error && <div>数据请求出错</div>}
+    </div>
+  );
+}
+```
+
+### 组件加载不即刻发送请求，需要其他事件触发请求[<font color=#467aff>在 codesandbox 试试吧</font>](https://codesandbox.io/s/jovial-feistel-p11wv?file=/src/App.tsx)
+
+这个例子使用了 ts 语法，在 ts 中使用时，可以在使用 hook 时直接定义需要返回的数据类型。
+
+```js
+import "./styles.css";
+import React, { useState, useEffect } from "react";
+//引入use-axios-hook
+import useRequest from "use-axios-hook";
+//定义数据类型
+interface Item {
+  cell: string;
+  name: {
+    title: string;
+  };
+}
+
+export default function App() {
+  const [data, setData] = useState<Item[]>([]);
+  const [query, setQuery] = useState<number>(50);
+  //调用：未发起请求
+  const [state, loadData] = useRequest<Item[]>({//直接定义需要返回的数据类型
+    url: "https://randomuser.me/api/",
+    configDatas: {
+      results: query
+    },
+    method: "GET",
+    trigger: false, //点击button按钮再发送请求
+    handleData: (res) => res.data.results //精确获取需要返回的数据
+  });
+  //监听请求状态：数据请求成功
   useEffect(() => {
-    if (state.error) {
-      ****
+    if (state.data) {
+      setData(state.data);
     }
-  }, [state.error]);
+  }, [state.data]);
+  //发送请求：点击按钮发送请求
+  const handleClick = () => {
+    //如果只是发送一次请求可以直接loadData()就可以了
+    // loadData();
+    //如果发送请求后还需要一些其他的操作，可以使用.then()进行扩展，.then()中既可以拿到请求返回，也可以进行js操作；
+    loadData().then((res) => {
+      console.log(res);
+      setQuery(query === 50 ? 100 : 50);
+    });
+  };
+
+  return (
+    <>
+      <button onClick={handleClick.bind(null)}>button</button>
+      <ul>
+        {state.loading ? (
+          <p>loading....</p>
+        ) : (
+          data.length !== 0 &&
+          data.map((item, index) => <li key={item.cell}>{item.name.title}</li>)
+        )}
+        {state.error && <div>error</div>}
+      </ul>
+    </>
+  );
+}
+
 ```
 
 ## 参数设置
@@ -77,106 +180,6 @@ export type RequestParams<T = any, UrlType = any> = AxiosRequestConfig & {
 - loadData：用于发送请求的函数，当请求参数 trigger 为 false 时，请求不立刻发送，在触发时机调用 loadData 即可发起请求；
   - loadData 函数参数：需要发送给后端的请求数据，同样是 json 格式，默认为{}；（选填）
   - loadData 函数返回：promise，把后端返回数据 response 返回，这样方便后续使用.then()进行扩展，更灵活；
-
-## Example
-
-- 直接在 react 中调用
-
-```js
-//AppReact.jsx
-import React, { useState, useEffect } from 'react';
-import useRequest from 'use-axios-hook';
-
-function AppReact() {
-  const [data, setData] = useState([]);
-  //发请求
-  const [state] = useRequest({
-    url: 'https://randomuser.me/api/',
-    configDatas: {
-      results: 50
-    },
-    method: 'GET',
-    trigger: true, //组件加载就发送请求
-    handleData: (res) => res.data.results //精确获取需要返回的数据
-  });
-  //监听请求成功，改变状态
-  useEffect(() => {
-    if (state.data) {
-      setData(state.data);
-    }
-  }, [state.data]); //eslint-disable-line
-
-  return (
-    <>
-      <ul>
-        {state.loading && <p>loading....</p>}
-        {data.length !== 0 &&
-          data.map((item, index) => <li key={item.cell}>{item.name.title}</li>)}
-        {state.error && <div>error</div>}
-      </ul>
-    </>
-  );
-}
-export default AppReact;
-```
-
-- 使用 ts 语法
-
-```js
-//AppTypescript.tsx
-import React, { useState, useEffect } from "react";
-import useRequest from "use-axios-hook";
-//定义数据类型
-interface Item {
-  cell: string;
-  name: {
-    title: string;
-  };
-}
-
-function AppTypescript() {
-  const [data, setData] = useState<Item[]>([]);
-  const [query, setQuery] = useState<number>(50);
-  //发送数据请求
-  const [state, loadData] = useRequest<Item[]>({//发送请求的时候可以传入需要获取的数据类型
-    url: "https://randomuser.me/api/",
-    configDatas: {
-      results: query
-    },
-    method: "GET",
-    trigger: false, //点击button按钮再发送请求
-    handleData: (res) => res.data.results //精确获取需要返回的数据
-  });
-  //监听请求成功，改变状态
-  useEffect(() => {
-    if (state.data) {
-      setData(state.data);
-    }
-  }, [state.data]); //eslint-disable-line
-
-  const handleClick = () => {
-    //点击按钮发送请求，请求完成后可以通过then进行扩展，即可以拿到返回数据又可以进行其他操作，更加灵活
-    loadData().then((res) => {
-      console.log(res);
-      setQuery(query === 50 ? 200 : 50);
-    });
-  };
-
-  return (
-    <>
-      <button onClick={handleClick.bind(null)}>button</button>
-      <ul>
-        {/* {state.loading && <p>loading....</p>} */}
-        {data.length !== 0 &&
-          data.map((item, index) => <li key={item.cell}>{item.name.title}</li>)}
-        {state.error && <div>error</div>}
-      </ul>
-    </>
-  );
-}
-export default AppTypescript;
-
-```
 
 以上是使用默认配置，如果需要根据项目定制自己的 useRequest，比如定制错误处理函数，格式化请求返回数据，增加额外请求参数等，可以使用 use-axios-hook 导出的高阶函数 withUseRequest。
 
