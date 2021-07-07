@@ -150,82 +150,18 @@ export default function App() {
 
 ```
 
-## API 介绍
-
-```js
-url: 请求 url，axios 自带参数（必填）
-```
-
-### 请求参数
-
-- url: 请求 url，axios 自带参数（必填）
-- configDatas：需要传递给后端的数据，以 json 格式传递，默认为 {}；（选填）
-- trigger：布尔值，是否立即触发请求，true:立即发送，false：不发送，默认为 true；（选填）
-- handleData：(res: AxiosResponse) => T;处理请求返回，精确获取想要的数据，默认不填；（选填）
-- postWithGetMethod：布尔值，默认为 false（在后端接口为 post 请求但是需要使用 get 方式连接请求参数，并且请求参数需要其他方式触发得到，需要在触发时重新拼接 url，设置为 true）；（选填）
-
-除此之前还包括 axios 所有自带的请求参数，参数类型设置如下：
-
-```js
-export type RequestParams<T = any, UrlType = any> = AxiosRequestConfig & {
-  url: UrlType,
-  configDatas?: {
-    [key: string]: any
-  },
-  trigger?: boolean,
-  handleData?: (res: AxiosResponse) => T,
-  postWithGetMethod?: boolean
-};
-```
-
-### 返回参数
-
-- state：状态对象，包含后端返回数据 data，请求加载状态 loading 和错误状态 error；
-- loadData：用于发送请求的函数，当请求参数 trigger 为 false 时，请求不立刻发送，在触发时机调用 loadData 即可发起请求；
-  - loadData 函数参数：需要发送给后端的请求数据，同样是 json 格式，默认为{}；（选填）
-  - loadData 函数返回：promise，把后端返回数据 response 返回，这样方便后续使用.then()进行扩展，更灵活；
-
-以上是使用默认配置，如果需要根据项目定制自己的 useRequest，比如定制错误处理函数，格式化请求返回数据，增加额外请求参数等，可以使用 use-axios-hook 导出的高阶函数 withUseRequest。
-
-## 导出代码
-
-```js
-export const withUseRequest: <U>(
-  defaultConfig?: {},
-  handleErrorRes?: (res?: AxiosResponse, defaultConfig?: {}) => any,
-  handleError?: (err?: any) => any,
-  formatData?: (res?: AxiosResponse) => void
-) => UseRequestType<U> = (
-  defaultConfig = {},
-  handleErrorRes,
-  handleError,
-  formatData
-) => {
-  const useRequest: ReturnType<typeof withUseRequest> = (props) => {};
-  return useRequest;
-};
-```
-
-## withUseRequest 参数
-
-- defaultConfig：增加请求的默认配置参数：json 格式，默认为{}；（选填）
-- handleErrorRes：错误处理函数：比如处理 401,407 等情况，(res?: AxiosResponse, defaultConfig?: {}) => any；（选填）
-  - handleErrorRes 函数参数：服务端返回数据 res，和所有的请求参数；
-- handleError：错误处理函数：用于 catch 捕获到的错误处理；（选填）
-- formatData：统一格式化后端返回数据，比如后端返回数据都是 res.data.data 这种格式，可以统一格式化返回为 res.data；（选填）
-
-### 使用 **withUseRequest 定制自己的 useRequest**
+### 使用 **withUseRequest 定制自己的 useRequest**[<font color=#467aff>在 codesandbox 试试吧</font>](https://codesandbox.io/s/cool-nobel-q2xpw?file=/src/App.tsx)
 
 #### 针对所有接口可以选择性增加以下**通用配置**
 
-- 定制请求参数 url 的类型；
-- 定制判断服务端是否正常返回数据的判断方法；
-- 定制服务端非正常返回数据情况下的错误处理；
-- 定制 catch 到的错误处理；
-- 统一处理服务端返回数据的格式；
-- 统一增加额外的请求参数；
+- 定制请求参数 _url 的类型_；
+- 定制判断服务端*是否正常返回数据的判断方法*；
+- 定制服务端*非正常返回数据情况下的错误处理*；
+- 定制 _catch 到的错误处理_；
+- 统一处理服务端*返回数据的格式*；
+- 统一*增加额外的请求参数*；
 
-下面只是举例介绍怎么使用配置，详细参数请参考下面的 API 介绍。
+下面只是举例介绍怎么使用配置，详细参数请参考下面的 **API** 介绍。
 
 ```js
 //useMyRequest.js
@@ -340,4 +276,51 @@ export default function App() {
     </>
   );
 }
+```
+
+## API 介绍
+
+### **useRequest： 默认 hook**
+
+- **请求参数**：包括 **axios** 所有自带的请求参数，还有以下 **4 个默认参数**
+
+```js
+//请求url
+url: axios自带参数，可通过withUseRequest定制url类型，默认为string类型
+//需要传递给后端的数据,默认为{}
+configDatas?：json
+//是否立即触发请求,true:立即发送，false：不发送，默认为 true
+trigger?: boolean
+//处理请求返回，精确获取想要的数据，默认不填
+handleData?：(res: AxiosResponse) => T;
+//在后端接口为 post 请求但是需要使用 get 方式连接请求参数，并且请求参数需要事件触发触发得到，因此需要在事件触发时使用请求参数重新拼接 url
+//默认为false，需要使用以上方式发请求时设置为true
+postWithGetMethod：boolean
+```
+
+- **返回参数**
+
+```js
+//状态对象
+state：包含后端返回数据 data，请求加载状态 loading 和错误状态 error
+//用于发送请求的函数，当请求参数 trigger 为 false 时，请求不立刻发送，在触发时机调用 loadData 即可发起请求
+loadData：(data:json) => promise
+//其中data为发送给后端的请求数据，json格式默认为{}，返回promise方便后续使用.then(res=>{})进行扩展
+```
+
+### **withUseRequest：定制 useRequest**
+
+- **请求参数**
+
+```js
+//useRequest的默认请求参数上面已经列出，如果以上的参数对于你的项目还不够怎么办呢，可以使用withUseRequest的defaultConfig定制属于你自己项目的请求参数
+defaultConfig?：json格式，默认为{}
+//有些项目是通过res.data.code是否为0来判读服务端数据是否正常返回，有些则是通过res.status是否为200来判断，可以使用withUseRequest的defineError定制自己项目的数据是否正常返回的标准，true:非正常返回
+defineError?：(res: AxiosResponse) => boolean
+//数据非正常返回时的处理方法，函数参数：服务端返回数据 res，和所有的请求参数
+handleDefineError?：(res, config) => void
+//捕获到错误时的处理方法
+handleCatchErr?: (err) => void
+//统一格式化后端返回数据，比如后端返回数据都是 res.data.data 这种格式，这里可以统一处理返回res.data.data,以免在每个接口调用中都要调用res.data.data;
+formatData?: (res) => T
 ```
