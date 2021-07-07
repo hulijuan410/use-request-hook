@@ -152,7 +152,7 @@ export default function App() {
 
 **3. 使用 withUseRequest 定制自己的 useRequest**[<font color=#467aff>在 codesandbox 试试吧</font>](https://codesandbox.io/s/cool-nobel-q2xpw?file=/src/App.tsx)
 
-#### **针对所有接口可以选择性增加以下*通用配置***
+##### **针对所有接口可以选择性增加以下*通用配置***
 
 - 定制请求参数 _url 的类型_；
 - 定制判断服务端*是否正常返回数据的判断方法*；
@@ -164,7 +164,7 @@ export default function App() {
 下面只是举例介绍怎么使用配置，详细参数请参考下面的 **API** 介绍。
 
 ```js
-//useMyRequest.js
+//定制useRequest
 //导入withUseRequest
 import { withUseRequest } from "use-axios-hook";
 import { AxiosResponse } from "axios";
@@ -310,7 +310,7 @@ loadData：(data:json) => promise
 
 ### **withUseRequest：定制 useRequest**
 
-- **请求参数**
+- **函数参数**
 
 ```js
 //useRequest的默认请求参数上面已经列出，如果以上的参数对于你的项目还不够怎么办呢，可以使用withUseRequest的defaultConfig定制属于你自己项目的请求参数
