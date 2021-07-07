@@ -150,9 +150,13 @@ export default function App() {
 
 ```
 
-## 参数设置
+## API 介绍
 
-#### 请求参数
+```js
+url: 请求 url，axios 自带参数（必填）
+```
+
+### 请求参数
 
 - url: 请求 url，axios 自带参数（必填）
 - configDatas：需要传递给后端的数据，以 json 格式传递，默认为 {}；（选填）
@@ -183,8 +187,6 @@ export type RequestParams<T = any, UrlType = any> = AxiosRequestConfig & {
 
 以上是使用默认配置，如果需要根据项目定制自己的 useRequest，比如定制错误处理函数，格式化请求返回数据，增加额外请求参数等，可以使用 use-axios-hook 导出的高阶函数 withUseRequest。
 
-# 使用 withUseRequest 定制调用
-
 ## 导出代码
 
 ```js
@@ -212,73 +214,130 @@ export const withUseRequest: <U>(
 - handleError：错误处理函数：用于 catch 捕获到的错误处理；（选填）
 - formatData：统一格式化后端返回数据，比如后端返回数据都是 res.data.data 这种格式，可以统一格式化返回为 res.data；（选填）
 
-## Example
+### 使用 **withUseRequest 定制自己的 useRequest**
 
-- 使用导出的 withUseRequest 定制自己的 useRequest
+#### 针对所有接口可以选择性增加以下**通用配置**
+
+- 定制请求参数 url 的类型；
+- 定制判断服务端是否正常返回数据的判断方法；
+- 定制服务端非正常返回数据情况下的错误处理；
+- 定制 catch 到的错误处理；
+- 统一处理服务端返回数据的格式；
+- 统一增加额外的请求参数；
+
+下面只是举例介绍怎么使用配置，详细参数请参考下面的 API 介绍。
 
 ```js
-//useBaseRequest.js
+//useMyRequest.js
+//导入withUseRequest
 import { withUseRequest } from "use-axios-hook";
 import { AxiosResponse } from "axios";
 
-//在这里可以配置你项目里的通用配置，比如
+//定义增加额外的请求参数类型
 interface ConfigType {
-  isPage?: boolean; //比如项目分页面级别的接口和模块级别的接口，对于页面级别的接口错误直接跳转错误页面，模块级别的接口错误只需要做错误处理，这时需要一个统一变量标识接口类型；
+  isPage?: boolean; //比如项目需要一个布尔变量判断当前接口是否为页面级别的接口
 }
-//配置请求url的类型
+//定制请求参数 url 的类型
 type UrlType = string;
 
-//配置项目通用配置
-const useBaseRequest = () => {
-  //handleRes可以统一配置错误返回的逻辑，举例如下
-  const handleRes = (res?: AxiosResponse, config?: ConfigType) => {
+const useMyRequest = () => {
+  //判断数据是否返回正确(假设code非0情况下数据返回错误)
+  const defineError = (res?: AxiosResponse) => {
+    return res.data.code !== 0;
+  };
+  //数据返回错误情况下的处理（handleDefineError中可以拿到服务端返回res和配置的额外请求参数）
+  const handleDefineError = (res?: AxiosResponse, config?: ConfigType) => {
     if (res!.data.code === 401) {
-      //比如401需要用户登录
-      console.log("在这里增加用户登录的逻辑");
+      console.log("增加401处理逻辑");
     } else if (res!.data.code === 407) {
-      //比如407需要绑定手机号
-      console.log("在这里增加绑定手机号的逻辑");
+      console.log("增加407处理逻辑");
     } else {
+      //页面级数据接口错误，400和500直接跳转，否则根据返回res分别处理
       if (config!.isPage) {
-        //页面级数据接口错误，400和500直接跳转，否则根据返回res分别处理
         if (res!.data.code >= 400) {
           console.log("直接跳转400页面");
-        } else if (res!.data.code >= 500) {
-          console.log("直接跳转500页面");
         }
+      } else {
+        console.log(res);
       }
     }
   };
-  //handleErr统一处理捕获错误逻辑
-  const handleErr = (err?: any) => {
+  //处理捕获错误
+  const handleCatchErr = (err?: any) => {
     console.error(err);
     console.log("直接跳转400页面");
   };
-  //统一接口返回数据的格式，比如所有接口数据都包裹在返回数据的data字段中，这里可以统一返回res.data.data,否则在每个接口中要获取到数据都要调用res.data.data
+  //统一接口返回数据的格式，假设所有接口数据都包裹在返回数据的data字段中，这里可以统一处理返回res.data.data,以免在每个接口调用中都要调用res.data.data
   const formatData = (res?: AxiosResponse) => {
     return res?.data.data;
   };
-  //除了自带的参数，需要额外增加的默认配置
+  //定义参数
   const config = {
-    openDefaultFunc: true,
     isPage: false
   };
 
-  return withUseRequest<UrlType>(config, handleRes, handleErr, formatData);
+  return withUseRequest<UrlType, ConfigType>(
+    config,
+    handleDefineError,
+    handleCatchErr,
+    formatData,
+    defineError
+  );
 };
 
-export default useBaseRequest;
+export default useMyRequest;
 
 ```
 
-- 使用定制好的 useRequest
-
 ```js
-import useBaseRequest from "./useBaseRequest";
-...
-...
-const useRequest = useBaseRequest();
-//接下来就和基础调用一样啦。。。
-...
-...
+//调用定制好的useRequest
+import useMyRequest from "./useMyRequest";
+
+export default function App() {
+  //调用hook
+  const useRequest = useMyRequest();
+  const [data, setData] = useState<string[]>([]);
+  const [num, setNumber] = useState<string | number>(2);
+  //定义请求
+  const [state, loadData] = useRequest<string[]>({
+    url: "https://autumnfish.cn/api/joke/list",
+    configDatas: {
+      num: num
+    },
+    method: "GET",
+    trigger: false, //点击button按钮再发送请求
+    isPage: true//在useMyRequest中配置的参数
+  });
+  //监听请求成功，改变状态
+  useEffect(() => {
+    if (state.data) {
+      setData(state.data);
+    }
+  }, [state.data]); //eslint-disable-line
+  //发送请求
+  const handleClick = () => {
+    loadData().then(() => {
+      if (num === 2) {
+        setNumber("a");
+      } else {
+        setNumber(2);
+      }
+    });
+  };
+  return (
+    <>
+      <button onClick={handleClick.bind(null)}>button</button>
+      <ul>
+        {state.loading ? (
+          <p>loading....</p>
+        ) : state.error ? (
+          <div>error</div>
+        ) : (
+          data.length !== 0 &&
+          data.map((item, index) => <li key={index}>{item}</li>)
+        )}
+      </ul>
+    </>
+  );
+}
 ```

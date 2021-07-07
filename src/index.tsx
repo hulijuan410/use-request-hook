@@ -15,7 +15,11 @@ type Action<T = any> = {
   payload?: T;
 };
 
-export type RequestParams<T = any, UrlType = any> = AxiosRequestConfig & {
+export type RequestParams<
+  T = any,
+  UrlType = any,
+  OtherParams = any
+> = AxiosRequestConfig & {
   // 兼容 `/api/{params}` 类型接口
   url: UrlType;
   configDatas?: {
@@ -24,7 +28,7 @@ export type RequestParams<T = any, UrlType = any> = AxiosRequestConfig & {
   trigger?: boolean;
   handleData?: (res: AxiosResponse) => T;
   postWithGetMethod?: boolean; //使用Post请求，但是需要把请求参数链接到url上，并且请求参数需要其他方式触发得到
-};
+} & OtherParams;
 
 const fetchDataReducer: (state: State, action: Action) => State = (
   state: State,
@@ -55,20 +59,22 @@ const fetchDataReducer: (state: State, action: Action) => State = (
   }
 };
 
-type UseRequestType<U = any> = <T = any>(
-  params: RequestParams<T, U>
+type UseRequestType<U = any, O = any> = <T = any>(
+  params: RequestParams<T, U, O>
 ) => [State<T>, (config?: {}) => Promise<any>];
 
-export const withUseRequest: <U>(
+export const withUseRequest: <U, O>( //O是为了在RequestParams中增加通用匹配参数
   defaultConfig?: {},
-  handleErrorRes?: (res?: AxiosResponse, defaultConfig?: {}) => any,
-  handleError?: (err?: any) => any,
-  formatData?: (res?: AxiosResponse) => void
-) => UseRequestType<U> = (
+  handleDefineError?: (res?: AxiosResponse, defaultConfig?: {}) => any,
+  handleCatchErr?: (err?: any) => any,
+  formatData?: (res?: AxiosResponse) => void,
+  defineError?: (res?: AxiosResponse) => boolean
+) => UseRequestType<U, O> = (
   defaultConfig = {},
-  handleErrorRes,
-  handleError,
-  formatData
+  handleDefineError,
+  handleCatchErr,
+  formatData,
+  defineError
 ) => {
   //useRequest Hook
   const useBaseRequest: ReturnType<typeof withUseRequest> = (props) => {
@@ -139,7 +145,7 @@ export const withUseRequest: <U>(
           if (!getIsMounted()) {
             return res;
           }
-          if (res.data.code === 0 || res.status === 200) {
+          if (res.data.code === 0 || (defineError && !defineError(res))) {
             dispatch({
               type: 'FETCH_SUCCESS',
               payload: handleData
@@ -151,14 +157,14 @@ export const withUseRequest: <U>(
           } else {
             dispatch({ type: 'FETCH_ERROR' });
             //错误处理
-            handleErrorRes &&
-              handleErrorRes(res, Object.assign({}, defaultConfig, props));
+            handleDefineError &&
+              handleDefineError(res, Object.assign({}, defaultConfig, props));
           }
           return res; //请求有返回的情况下都会把res返回，这样方便后续使用.then()进行扩展，更灵活
         })
         .catch((err) => {
           //错误处理
-          handleError && handleError(err);
+          handleCatchErr && handleCatchErr(err);
           dispatch({ type: 'FETCH_ERROR' });
         });
       return promise;
