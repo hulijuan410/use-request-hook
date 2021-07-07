@@ -37,7 +37,7 @@ useEffect(() => {
 
 ## 一些常用实例
 
-### 组件加载就发送请求 [<font color=#467aff>在 codesandbox 试试吧</font>](https://codesandbox.io/s/trusting-river-qt84d?file=/src/App.tsx)
+1. 组件加载就发送请求 [<font color=#467aff>在 codesandbox 试试吧</font>](https://codesandbox.io/s/trusting-river-qt84d?file=/src/App.tsx)
 
 ```js
 import './styles.css';
@@ -85,7 +85,7 @@ export default function App() {
 }
 ```
 
-### 组件加载不即刻发送请求，需要其他事件触发请求[<font color=#467aff>在 codesandbox 试试吧</font>](https://codesandbox.io/s/jovial-feistel-p11wv?file=/src/App.tsx)
+2. 组件加载不即刻发送请求，需要其他事件触发请求[<font color=#467aff>在 codesandbox 试试吧</font>](https://codesandbox.io/s/jovial-feistel-p11wv?file=/src/App.tsx)
 
 这个例子使用了 ts 语法，在 ts 中使用时，可以在使用 hook 时直接定义需要返回的数据类型。
 
@@ -150,7 +150,7 @@ export default function App() {
 
 ```
 
-### 使用 **withUseRequest 定制自己的 useRequest**[<font color=#467aff>在 codesandbox 试试吧</font>](https://codesandbox.io/s/cool-nobel-q2xpw?file=/src/App.tsx)
+3. 使用 **withUseRequest 定制自己的 useRequest**[<font color=#467aff>在 codesandbox 试试吧</font>](https://codesandbox.io/s/cool-nobel-q2xpw?file=/src/App.tsx)
 
 #### 针对所有接口可以选择性增加以下**通用配置**
 
