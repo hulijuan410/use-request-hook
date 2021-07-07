@@ -1,6 +1,6 @@
 # use-axios-hook
 
-**use-axios-hook**是使用[Typescript](https://www.typescriptlang.org)和[React Hooks](https://zh-hans.reactjs.org/docs/hooks-reference.html)封装的用于服务端请求的自定义 hook。
+**use-axios-hook**是使用[Typescript](https://www.typescriptlang.org)和[React Hooks](https://zh-hans.reactjs.org/docs/hooks-reference.html)封装的用于服务端请求的 react 自定义 hook。
 
 ## 安装
 
@@ -14,7 +14,7 @@ $> yarn add use-axios-hook
 ## 快速入门
 
 ```js
-//1、引入'use-axios-hook'包
+//1、引入'use-axios-hook'
 import useRequest from 'use-axios-hook';
 //2、调用：发起请求
 const [state] = useRequest({
@@ -23,8 +23,8 @@ const [state] = useRequest({
     results: 50
   },
   method: 'GET',
-  trigger: true, //组件加载就发送请求
-  handleData: (res) => res.data.results //精确获取需要返回的数据
+  trigger: true,
+  handleData: (res) => res.data.results
 });
 //3、监听请求状态(包括三个状态：loading、success、error)
 //请求成功
@@ -37,7 +37,7 @@ useEffect(() => {
 
 ## 一些常用实例
 
-1. **组件加载就发送请求** [<font color=#467aff>在 codesandbox 试试吧</font>](https://codesandbox.io/s/trusting-river-qt84d?file=/src/App.tsx)
+**1. 组件加载就发送请求** [<font color=#467aff>在 codesandbox 试试吧</font>](https://codesandbox.io/s/trusting-river-qt84d?file=/src/App.tsx)
 
 ```js
 import './styles.css';
@@ -85,7 +85,7 @@ export default function App() {
 }
 ```
 
-2. **组件加载不即刻发送请求，需要其他事件触发请求**[<font color=#467aff>在 codesandbox 试试吧</font>](https://codesandbox.io/s/jovial-feistel-p11wv?file=/src/App.tsx)
+**2. 组件加载不即刻发送请求，需要其他事件触发请求**[<font color=#467aff>在 codesandbox 试试吧</font>](https://codesandbox.io/s/jovial-feistel-p11wv?file=/src/App.tsx)
 
 这个例子使用了 ts 语法，在 ts 中使用时，可以在使用 hook 时直接定义需要返回的数据类型。
 
@@ -150,9 +150,9 @@ export default function App() {
 
 ```
 
-3. 使用 **withUseRequest 定制自己的 useRequest**[<font color=#467aff>在 codesandbox 试试吧</font>](https://codesandbox.io/s/cool-nobel-q2xpw?file=/src/App.tsx)
+**3. 使用 withUseRequest 定制自己的 useRequest**[<font color=#467aff>在 codesandbox 试试吧</font>](https://codesandbox.io/s/cool-nobel-q2xpw?file=/src/App.tsx)
 
-#### 针对所有接口可以选择性增加以下**通用配置**
+#### **针对所有接口可以选择性增加以下*通用配置***
 
 - 定制请求参数 _url 的类型_；
 - 定制判断服务端*是否正常返回数据的判断方法*；
