@@ -162,10 +162,11 @@ export const withUseRequest: <U, O>( //O是为了在RequestParams中增加通用
           }
           return res; //请求有返回的情况下都会把res返回，这样方便后续使用.then()进行扩展，更灵活
         })
-        .catch((err) => {
+        .catch((error) => {
           //错误处理
-          handleCatchErr && handleCatchErr(err);
+          handleCatchErr && handleCatchErr(error);
           dispatch({ type: 'FETCH_ERROR' });
+          throw error;
         });
       return promise;
     };
