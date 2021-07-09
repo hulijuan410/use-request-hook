@@ -1,6 +1,6 @@
 # use-axios-hook
 
-**use-axios-hook**是使用[Typescript](https://www.typescriptlang.org)和[React Hooks](https://zh-hans.reactjs.org/docs/hooks-reference.html)封装的用于服务端请求的 react 自定义 hook。
+**use-axios-hook**是使用[Typescript](https://www.typescriptlang.org)和[React Hooks](https://zh-hans.reactjs.org/docs/hooks-reference.html)，基于 [axios](https://github.com/axios/axios) 封装的用于服务端请求的 react 自定义 hook。
 
 ## 安装
 
@@ -42,7 +42,7 @@ useEffect(() => {
 ```js
 import './styles.css';
 import React, { useEffect, useState } from 'react';
-//引入
+//引入'use-axios-hook'
 import useRequest from 'use-axios-hook';
 
 export default function App() {
@@ -87,7 +87,7 @@ export default function App() {
 
 **2. 组件加载不即刻发送请求，需要其他事件触发请求**[<font color=#467aff>在 codesandbox 试试吧</font>](https://codesandbox.io/s/jovial-feistel-p11wv?file=/src/App.tsx)
 
-这个例子使用了 ts 语法，在 ts 中使用时，可以在使用 hook 时直接定义需要返回的数据类型。
+_这个例子使用了 ts 语法，在 ts 中使用时，可以在调用 hook 时就传入需要返回的数据类型进行类型检测_
 
 ```js
 import "./styles.css";
@@ -106,7 +106,7 @@ export default function App() {
   const [data, setData] = useState<Item[]>([]);
   const [query, setQuery] = useState<number>(50);
   //调用：未发起请求
-  const [state, loadData] = useRequest<Item[]>({//直接定义需要返回的数据类型
+  const [state, loadData] = useRequest<Item[]>({//<Item[]>传入需要返回的数据类型
     url: "https://randomuser.me/api/",
     configDatas: {
       results: query
@@ -125,7 +125,7 @@ export default function App() {
   const handleClick = () => {
     //如果只是发送一次请求可以直接loadData()就可以了
     // loadData();
-    //如果发送请求后还需要一些其他的操作，可以使用.then()进行扩展，.then()中既可以拿到请求返回，也可以进行js操作；
+    //如果发送请求后还需要一些其他的操作，可以使用.then()进行扩展，.then(res=>{})中既可以拿到请求返回，也可以进行js操作；
     loadData().then((res) => {
       console.log(res);
       setQuery(query === 50 ? 100 : 50);
@@ -151,6 +151,7 @@ export default function App() {
 ```
 
 **3. 使用 withUseRequest 定制自己的 useRequest**[<font color=#467aff>在 codesandbox 试试吧</font>](https://codesandbox.io/s/cool-nobel-q2xpw?file=/src/App.tsx)
+_例子没有实际逻辑意义，纯粹为了举例说明_
 
 ##### **针对所有接口可以选择性增加以下*通用配置***
 
