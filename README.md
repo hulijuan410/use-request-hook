@@ -283,7 +283,7 @@ export default function App() {
 
 ### **useRequest： 默认 hook**
 
-- **请求参数**：包括 [**axios**]((https://github.com/axios/axios)) 所有自带的请求参数，还有以下除URL外的**4个新增参数**
+- **请求参数**：包括 [**axios**](https://github.com/axios/axios) 所有自带的请求参数，还有以下除URL外的**4个新增参数**
 
 ```js
 //请求url
