@@ -162,7 +162,7 @@ _例子没有实际逻辑意义，纯粹为了举例说明_
 - 统一处理服务端*返回数据的格式*；
 - 统一*增加额外的请求参数*；
 
-下面只是举例介绍怎么使用配置，详细参数请参考下面的 **API** 介绍。
+下面只是举例介绍怎么使用配置，详细参数请参考下面的 [**API**](#api) 介绍。
 
 ```js
 //定制useRequest
@@ -213,13 +213,13 @@ const useMyRequest = () => {
     isPage: false
   };
 
-  return withUseRequest<UrlType, ConfigType>(
-    config,
+  return withUseRequest<UrlType, ConfigType>({
+    defaultConfig: config,
     handleDefineError,
     handleCatchErr,
     formatData,
     defineError
-  );
+  });
 };
 
 export default useMyRequest;
@@ -279,11 +279,11 @@ export default function App() {
 }
 ```
 
-## API 介绍
+## <div id="api">API 介绍</div>
 
 ### **useRequest： 默认 hook**
 
-- **请求参数**：包括 **axios** 所有自带的请求参数，还有以下 **4 个默认参数**
+- **请求参数**：包括 [**axios**]((https://github.com/axios/axios)) 所有自带的请求参数，还有以下除URL外的**4个新增参数**
 
 ```js
 //请求url
@@ -311,17 +311,23 @@ loadData：(data:json) => promise
 
 ### **withUseRequest：定制 useRequest**
 
+#### 为什么要自己定制呢，原因在于
+1. useRequest的默认请求参数上面已经列出，如果以上的参数对于你的项目还不够怎么办呢，可以使用withUseRequest的defaultConfig定制属于你自己项目的请求参数;
+2. 有些项目是通过res.data.code是否为0来判读服务端数据是否正常返回，有些则是通过res.status是否为200来判断，每个项目的标准都不一样,可以使用withUseRequest的defineError定制自己项目的**数据是否正常返回的标准**；
+3. 每个项目所有接口的错误处理基本是相同的，可以在withUseRequest中统一配置；
+4. 统一格式化后端的返回数据，比如后端返回数据都是 res.data.data 这种格式，这里可以统一处理返回res.data.data,以免在每个接口调用中都要调用res.data.data
+
 - **函数参数**
 
 ```js
-//useRequest的默认请求参数上面已经列出，如果以上的参数对于你的项目还不够怎么办呢，可以使用withUseRequest的defaultConfig定制属于你自己项目的请求参数
+//定制属于你自己项目的请求参数
 defaultConfig?：json格式，默认为{}
-//有些项目是通过res.data.code是否为0来判读服务端数据是否正常返回，有些则是通过res.status是否为200来判断，可以使用withUseRequest的defineError定制自己项目的数据是否正常返回的标准，true:非正常返回
+//定制自己项目的数据是否正常返回的标准，默认为res.data.code !== 0，defineError返回true:非正常返回
 defineError?：(res: AxiosResponse) => boolean
 //数据非正常返回时的处理方法，函数参数：服务端返回数据 res，和所有的请求参数
 handleDefineError?：(res, config) => void
 //捕获到错误时的处理方法
 handleCatchErr?: (err) => void
-//统一格式化后端返回数据，比如后端返回数据都是 res.data.data 这种格式，这里可以统一处理返回res.data.data,以免在每个接口调用中都要调用res.data.data;
+//统一格式化后端返回数据
 formatData?: (res) => T
 ```

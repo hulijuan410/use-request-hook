@@ -63,19 +63,24 @@ type UseRequestType<U = any, O = any> = <T = any>(
   params: RequestParams<T, U, O>
 ) => [State<T>, (config?: {}) => Promise<any>];
 
+type WithRequestParams = {
+  defaultConfig?: {};
+  handleDefineError?: (res?: AxiosResponse, defaultConfig?: {}) => any;
+  handleCatchErr?: (err?: any) => any;
+  formatData?: (res?: AxiosResponse) => void;
+  defineError?: (res?: AxiosResponse) => boolean;
+};
+
 export const withUseRequest: <U, O>( //O是为了在RequestParams中增加通用匹配参数
-  defaultConfig?: {},
-  handleDefineError?: (res?: AxiosResponse, defaultConfig?: {}) => any,
-  handleCatchErr?: (err?: any) => any,
-  formatData?: (res?: AxiosResponse) => void,
-  defineError?: (res?: AxiosResponse) => boolean
-) => UseRequestType<U, O> = (
-  defaultConfig = {},
-  handleDefineError,
-  handleCatchErr,
-  formatData,
-  defineError
-) => {
+  params?: WithRequestParams
+) => UseRequestType<U, O> = ({...params}) => {
+  const {
+    defaultConfig,
+    handleDefineError,
+    handleCatchErr,
+    formatData,
+    defineError
+  } = params;
   //useRequest Hook
   const useBaseRequest: ReturnType<typeof withUseRequest> = (props) => {
     let {
