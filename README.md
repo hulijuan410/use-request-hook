@@ -315,7 +315,7 @@ loadData：(data:json) => promise
 1. useRequest的默认请求参数上面已经列出，如果以上的参数对于你的项目还不够怎么办呢，可以使用withUseRequest的defaultConfig定制属于你自己项目的请求参数;
 2. 有些项目是通过res.data.code是否为0来判读服务端数据是否正常返回，有些则是通过res.status是否为200来判断，每个项目的标准都不一样,可以使用withUseRequest的defineError定制自己项目的**数据是否正常返回的标准**；
 3. 每个项目所有接口的错误处理基本是相同的，可以在withUseRequest中统一配置；
-4. 统一格式化后端的返回数据，比如后端返回数据都是 res.data.data 这种格式，这里可以统一处理返回res.data.data,以免在每个接口调用中都要调用res.data.data
+4. 统一格式化后端的返回数据，比如后端返回数据都是 res.data.data 这种格式，这里可以统一处理返回res.data.data,以免在每个接口调用中都要调用res.data.data;
 
 - **函数参数**
 
