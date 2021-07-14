@@ -151,7 +151,7 @@ export default function App() {
 ```
 
 **3. 使用 withUseRequest 定制自己的 useRequest**[<font color=#467aff>在 codesandbox 试试吧</font>](https://codesandbox.io/s/cool-nobel-q2xpw?file=/src/App.tsx)
-_例子没有实际逻辑意义，纯粹为了举例说明_
+_例子没有实际逻辑意义，纯粹为了举例说明(点击两次试试哦~)_
 
 ##### **针对所有接口可以选择性增加以下*通用配置***
 
@@ -162,7 +162,7 @@ _例子没有实际逻辑意义，纯粹为了举例说明_
 - 统一处理服务端*返回数据的格式*；
 - 统一*增加额外的请求参数*；
 
-下面只是举例介绍怎么使用配置(点击两次试试哦~)，详细参数请参考下面的 [**API**](#api) 介绍。
+下面只是举例介绍怎么使用配置，详细参数请参考下面的 [**API**](#api) 介绍。
 
 ```js
 //定制useRequest
