@@ -73,7 +73,7 @@ type WithRequestParams = {
 
 export const withUseRequest: <U, O>( //O是为了在RequestParams中增加通用匹配参数
   params?: WithRequestParams
-) => UseRequestType<U, O> = ({...params}) => {
+) => UseRequestType<U, O> = ({ ...params }) => {
   const {
     defaultConfig,
     handleDefineError,
@@ -106,33 +106,35 @@ export const withUseRequest: <U, O>( //O是为了在RequestParams中增加通用
     const getConfigDatas: (
       configDatas: RequestParams['configDatas']
     ) => Object | string = (configDatas) => {
+      //没有参数，直接返回
+      if (Object.keys(configDatas).length === 0) return;
       //有参数
-      if (JSON.stringify(configDatas) !== JSON.stringify({})) {
-        //GET请求
-        if (method.toUpperCase() === 'GET') {
-          url += `?${qs.stringify(configDatas)}`;
+      // if (JSON.stringify(configDatas) !== JSON.stringify({})) {
+      //GET请求
+      if (method.toUpperCase() === 'GET') {
+        url += `?${qs.stringify(configDatas)}`;
+        return;
+      } else {
+        //其他请求
+        if (postWithGetMethod) {
+          //使用post请求，但是后端要求把请求参数连到url上，并且请求参数在页面加载时拿不到，所以需要拿到后重新拼接url
+          url +=
+            url!.indexOf('?') === -1
+              ? `?${qs.stringify(configDatas)}`
+              : `&${qs.stringify(configDatas)}`;
           return;
-        } else {
-          //其他请求
-          if (postWithGetMethod) {
-            //使用post请求，但是后端要求把请求参数连到url上，并且请求参数在页面加载时拿不到，所以需要拿到后重新拼接url
-            url +=
-              url!.indexOf('?') === -1
-                ? `?${qs.stringify(configDatas)}`
-                : `&${qs.stringify(configDatas)}`;
-            return;
-          }
-          if (
-            configDatas!['formData'] ||
-            headers['content-type'] === 'multipart/form-data'
-          ) {
-            return configDatas!['formData'];
-          }
-          if (headers['content-type'] === 'application/x-www-form-urlencoded') {
-            return qs.stringify(configDatas);
-          }
+        }
+        if (
+          configDatas!['formData'] ||
+          headers['content-type'] === 'multipart/form-data'
+        ) {
+          return configDatas!['formData'];
+        }
+        if (headers['content-type'] === 'application/x-www-form-urlencoded') {
+          return qs.stringify(configDatas);
         }
       }
+      // }
     };
 
     const loadData = async (config = {}) => {
