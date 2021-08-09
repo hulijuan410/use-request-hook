@@ -15,8 +15,6 @@ type Action<T = any> = {
   payload?: T;
 };
 
-type ContentType = 'urlencoded' | 'json' | 'formdata'; //header里content-type类型
-
 export type RequestParams<
   T = any,
   UrlType = any,
@@ -29,7 +27,6 @@ export type RequestParams<
   };
   trigger?: boolean;
   handleData?: (res: AxiosResponse) => T;
-  contentType?: ContentType; //header里content-type类型
   postWithGetMethod?: boolean; //使用Post请求，但是需要把请求参数链接到url上，并且请求参数需要其他方式触发得到
 } & OtherParams;
 
@@ -76,7 +73,7 @@ type WithRequestParams = {
 
 export const withUseRequest: <U, O>( //O是为了在RequestParams中增加通用匹配参数
   params?: WithRequestParams
-) => UseRequestType<U, O> = (params = {}) => {
+) => UseRequestType<U, O> = ({ ...params }) => {
   const {
     defaultConfig,
     handleDefineError,
@@ -94,7 +91,6 @@ export const withUseRequest: <U, O>( //O是为了在RequestParams中增加通用
       trigger = true,
       headers = {},
       handleData,
-      contentType = 'json',
       postWithGetMethod = false
     } = props;
     const [state, dispatch] = useReducer<
@@ -113,28 +109,32 @@ export const withUseRequest: <U, O>( //O是为了在RequestParams中增加通用
       //没有参数，直接返回
       if (Object.keys(configDatas).length === 0) return;
       //有参数
-      switch (method.toUpperCase()) {
-        case 'GET':
-        case 'DELETE':
-          url += `?${qs.stringify(configDatas)}`;
+      // if (JSON.stringify(configDatas) !== JSON.stringify({})) {
+      //GET请求
+      if (method.toUpperCase() === 'GET') {
+        url += `?${qs.stringify(configDatas)}`;
+        return;
+      } else {
+        //其他请求
+        if (postWithGetMethod) {
+          //使用post请求，但是后端要求把请求参数连到url上，并且请求参数在页面加载时拿不到，所以需要拿到后重新拼接url
+          url +=
+            url!.indexOf('?') === -1
+              ? `?${qs.stringify(configDatas)}`
+              : `&${qs.stringify(configDatas)}`;
           return;
-        case 'POST':
-        case 'PUT':
-        case 'PATCH':
-          if (postWithGetMethod) {
-            //使用post请求，但是需要以get方式传参
-            url +=
-              url!.indexOf('?') === -1
-                ? `?${qs.stringify(configDatas)}`
-                : `&${qs.stringify(configDatas)}`;
-            return;
-          }
-          if (contentType === 'urlencoded') {
-            return qs.stringify(configDatas);
-          } else if (contentType === 'formdata') {
-            return configDatas!['formData'];
-          }
+        }
+        if (
+          configDatas!['formData'] ||
+          headers['content-type'] === 'multipart/form-data'
+        ) {
+          return configDatas!['formData'];
+        }
+        if (headers['content-type'] === 'application/x-www-form-urlencoded') {
+          return qs.stringify(configDatas);
+        }
       }
+      // }
     };
 
     const loadData = async (config = {}) => {

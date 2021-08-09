@@ -288,15 +288,44 @@ export default function App() {
 ```js
 //请求url
 url: axios自带参数，可通过withUseRequest定制url类型，默认为string类型
-//需要传递给后端的数据,默认为{}
+//需要传递给后端的数据,都是以json格式传递,默认为{}
 configDatas?：json
 //是否立即触发请求,true:立即发送，false：不发送，默认为 true
 trigger?: boolean
 //处理请求返回，精确获取想要的数据，默认不填
 handleData?：(res: AxiosResponse) => T;
-//在后端接口为 post 请求但是需要使用 get 方式连接请求参数，并且请求参数需要事件触发触发得到，因此需要在事件触发时使用请求参数重新拼接 url
-//默认为false，需要使用以上方式发请求时设置为true
+//控制header中content-type的类型，默认为json
+//type ContentType = 'urlencoded' | 'json' | 'formdata';
+contentType?: ContentType;
+//后端接口为POST请求，但是需要以GET方式传递参数，默认为false
 postWithGetMethod：boolean
+```
+
+**contentType 类型注解，contentType 可能为以下三种类型：**
+
+1. urlencoded：对应 content-type 为 application/x-www-form-urlencoded；
+2. json：对应 content-type 为 application/json；
+3. fromData: 对应 content-type 为 multipart/form-data，**特别注意：这种类型传递的数据必须以 formData 命名，举例如下**
+
+```js
+//定义请求
+const [file, loadFile] = useRequest({
+  url:
+    'http://test.doc.ie.sogou/api/documents?X-SOHUPASSPORT-USERID=0FA5A34E68F8A47D976E62D803CE847E@qq.sohu.com',
+  method: 'POST',
+  trigger: false,
+  contentType: 'formdata'
+});
+//发送请求（FormData本身就是一种key=value的形式）
+const handleLoadFile = (e: any) => {
+  let file = e.target.files[0];
+  const form = new FormData();
+  form.append('file', file);
+  form.append('name', 'test');
+  loadFile({
+    formData: form //***注意这里必须命名为formData，否则取不到，因为在useRequest中我是这么取值的if (contentType === 'formdata') {return configDatas!['formData'];}***
+  });
+};
 ```
 
 - **返回参数**
