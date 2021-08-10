@@ -305,7 +305,7 @@ postWithGetMethod：boolean
 
 1. urlencoded：对应 content-type 为 application/x-www-form-urlencoded；
 2. json：对应 content-type 为 application/json；
-3. fromData: 对应 content-type 为 multipart/form-data，**特别注意：这种类型传递的数据必须以 formData 命名，举例如下**
+3. fromData: 对应 content-type 为 multipart/form-data，**特别注意：这种类型传递的数据必须以 formData 命名，js 举例如下**
 
 ```js
 //定义请求
