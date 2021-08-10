@@ -297,15 +297,17 @@ handleData?：(res: AxiosResponse) => T;
 //控制header中content-type的类型，默认为json
 //type ContentType = 'urlencoded' | 'json' | 'formdata';
 contentType?: ContentType;
-//后端接口为POST请求，但是需要以GET方式传递参数，默认为false
+//后端接口为post/PUT/PATCH请求，但是需要以GET方式传递参数，默认为false（一般不会有这种方式，但是遇到过就加上了，也是以防意外）
 postWithGetMethod：boolean
 ```
 
-**对请求参数 contentType 进行说明，contentType 可能为以下三种类型：**
+**对请求参数 contentType 进行说明：**
+
+当 axios 请求为 GET 或 DELETE 请求时，一般不需要设置 contentType，当请求为 POST、PUT 或 PATCH 时，需要根据传递给后端的数据格式将 contentType 设置为以下三种类型之一（因为我们规定数据是以 json 格式传递的所以 contentType 默认为 json，当需要其他格式的数据时需要在请求中设置 contentType 为相应的类型）：
 
 1. urlencoded：对应 content-type 为 application/x-www-form-urlencoded；
 2. json：对应 content-type 为 application/json；
-3. fromData: 对应 content-type 为 multipart/form-data，**特别注意：这种类型传递的数据必须以 formData 命名，js 举例如下**
+3. formdata: 对应 content-type 为 multipart/form-data，**特别注意：这种类型传递的数据必须以 formData 命名，js 举例如下**
 
 ```js
 //定义请求
@@ -314,7 +316,7 @@ const [file, loadFile] = useRequest({
     'http://test.doc.ie.sogou/api/documents?X-SOHUPASSPORT-USERID=0FA5A34E68F8A47D976E62D803CE847E@qq.sohu.com',
   method: 'POST',
   trigger: false,
-  contentType: 'formdata'
+  contentType: 'formdata' //***设置contentType为formdata格式***
 });
 //发送请求（FormData本身就是一种key=value的形式）
 const handleLoadFile = (e: any) => {
@@ -323,7 +325,7 @@ const handleLoadFile = (e: any) => {
   form.append('file', file);
   form.append('name', 'test');
   loadFile({
-    formData: form //***注意这里必须命名为formData，否则取不到，因为在useRequest中我是这么取值的if (contentType === 'formdata') {return configDatas!['formData'];}***
+    formData: form //***注意这里必须命名为formData，否则取不到，因为在useRequest中我是这么取值的`if (contentType === 'formdata') {return configDatas!['formData'];}`***
   });
 };
 ```

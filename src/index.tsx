@@ -122,7 +122,7 @@ export const withUseRequest: <U, O>( //O是为了在RequestParams中增加通用
         case 'PUT':
         case 'PATCH':
           if (postWithGetMethod) {
-            //使用post请求，但是需要以get方式传参
+            //使用post/PUT/PATCH请求，但是需要以get方式传参
             url +=
               url!.indexOf('?') === -1
                 ? `?${qs.stringify(configDatas)}`
