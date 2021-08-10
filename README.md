@@ -283,7 +283,7 @@ export default function App() {
 
 ### **useRequest： 默认 hook**
 
-- **请求参数**：包括 [**axios**](https://github.com/axios/axios) 所有自带的请求参数，还有以下除 URL 外的**4 个新增参数**
+- **请求参数**：包括 [**axios**](https://github.com/axios/axios) 所有自带的请求参数，还有以下除 URL 外的**5 个新增参数**
 
 ```js
 //请求url
@@ -301,7 +301,7 @@ contentType?: ContentType;
 postWithGetMethod：boolean
 ```
 
-**contentType 类型注解，contentType 可能为以下三种类型：**
+**对请求参数 contentType 进行说明，contentType 可能为以下三种类型：**
 
 1. urlencoded：对应 content-type 为 application/x-www-form-urlencoded；
 2. json：对应 content-type 为 application/json；
