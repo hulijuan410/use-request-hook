@@ -92,7 +92,6 @@ export const withUseRequest: <U, O>( //O是为了在RequestParams中增加通用
       method = 'GET',
       configDatas = {}, //默认传递数据都是json格式
       trigger = true,
-      headers = {},
       handleData,
       contentType = 'json',
       postWithGetMethod = false
@@ -112,11 +111,12 @@ export const withUseRequest: <U, O>( //O是为了在RequestParams中增加通用
     ) => Object | string = (configDatas) => {
       //没有参数，直接返回
       if (Object.keys(configDatas).length === 0) return;
+      const stringfyData = qs.stringify(configDatas);
       //有参数
       switch (method.toUpperCase()) {
         case 'GET':
         case 'DELETE':
-          url += `?${qs.stringify(configDatas)}`;
+          url += `?${stringfyData}`;
           return;
         case 'POST':
         case 'PUT':
@@ -125,14 +125,14 @@ export const withUseRequest: <U, O>( //O是为了在RequestParams中增加通用
             //使用post/PUT/PATCH请求，但是需要以get方式传参
             url +=
               url!.indexOf('?') === -1
-                ? `?${qs.stringify(configDatas)}`
-                : `&${qs.stringify(configDatas)}`;
+                ? `?${stringfyData}`
+                : `&${stringfyData}`;
             return;
           }
           if (contentType === 'urlencoded') {
-            return qs.stringify(configDatas);
+            return stringfyData;
           } else if (contentType === 'formdata') {
-            return configDatas!['formData'];
+            return configDatas!['formData']; //必须以formData命名
           }
       }
     };
